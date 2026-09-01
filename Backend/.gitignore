@@ -1,0 +1,41 @@
+# Build results
+bin/
+obj/
+out/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Test results
+TestResults/
+[Cc]overage/
+*.trx
+
+# NuGet
+*.nupkg
+**/packages/*
+!**/packages/build/
+.nuget/
+
+# Logs
+logs/
+*.log
+
+# Environment / secrets
+.env
+*.env.local
+appsettings.*.local.json
+secrets.json
+
+# EF Core
+*.dbmdl
+
+# OS files
+.DS_Store
+Thumbs.db
