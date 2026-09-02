@@ -14,6 +14,7 @@ The following guidelines provide standards and best practices for development in
 - [Coding Standards](./.claude/guidelines/coding-standards.md) — Code style, naming conventions, and best practices
 - [Unit Testing Guidelines](./.claude/guidelines/unit-testing.md) — Unit test design, structure, and conventions
 - [Integration Testing Guidelines](./.claude/guidelines/integration-testing.md) — Integration test patterns and practices
+- Store all the plans and setup files (if any) under the `Backend/.claude/plans/` directory.
 
 ## Checking Documentation
 

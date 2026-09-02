@@ -1,41 +1,21 @@
-## Entity Setup (Optional can be removed from spec if not needed)
+**Important Notes**:
 
-- Table Name: <TableName>
-- Entity: <EntityName> (optional, if not specified, will be derived from the <TableName>)
-- Type: New/Existing
-- Declaration:
-  ...
+- This template is used for defining the extended CRUD operations for updating entities.
+- Ensure that all table names, columns, and operations are correctly specified and already exist according to the database schema.
 
-**Terminologies**: Below will be the commonly used terms in the CRUD setup (combination of SQL and pseudocode):
-
-- PK: Primary Key
-- FK(TableName, ColumnName): Foreign Key
-- UK: Unique Key
-- UUID: Universally Unique Identifier
-- CUK (params1, params2, ...): Composite Unique Key
-- IDX (params1, params2, ...): Index Constraint
-
-## CRUD Coverage Standard
-
-- Get: Yes/No (Default No)
-- GetAll: Yes/No (Default No)
-- Create: Yes/No (Default No)
-- Update: Yes/No (Default No)
-- Delete: Yes/No (Default No)
-
-## CRUD Coverage Extended (Optional can be removed from spec if not needed)
+## CRUD Coverage Extended (Required)
 
 **Format**: (TableName, Columns, Operation at last)
 
 - FunctionName: <FunctionName>
-  - Table 1: (If `Enitity Setup` is provided, use <TableName> else provide explicitly)
-    - Columns: [<ColumnName1>, <ColumnName2>, ...]
+  - Table 1: (Use <TableName>)
+    - Columns (optional): [<ColumnName1>, <ColumnName2>, ...]
     - Join (optional): INNER|LEFT|RIGHT
   - Table 2: (If there is another table involved in the extended CRUD operation)
-    - Columns: [<ColumnName1>, <ColumnName2>, ...]
+    - Columns (optional): [<ColumnName1>, <ColumnName2>, ...]
     - Join (optional): INNER|LEFT|RIGHT
   - Table n: (If there is another table involved in the extended CRUD operation)
-    - Columns: [<ColumnName1>, <ColumnName2>, ...]
+    - Columns (optional): [<ColumnName1>, <ColumnName2>, ...]
     - Join (optional): INNER|LEFT|RIGHT
   - Operation: Get|GetAll|Create|Update|Delete
 
@@ -51,6 +31,7 @@
   - Not required for Create, Update, or Delete Operation.
 - **DO NOT** allow multiple tables when perform Create, Update, or Delete Operation.
 - <FunctionName> needs to be translated to services, repository, api, test methodname.
+- If Columns (optional) is not specified, all columns from the table will be included by default.
 
 ## Open Questions
 

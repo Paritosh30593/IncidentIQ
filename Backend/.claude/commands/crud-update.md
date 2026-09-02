@@ -1,0 +1,45 @@
+---
+title: CRUD Update Command
+description: Command for updating CRUD operations in the backend.
+arguments: $ARGUMENTS
+argument-hint: ["SpecFileRef"]
+---
+
+You are helping to update existing CRUD operations for a new feature based on the user input below. Always adhere to any rules or requirements set out in any CLAUDE.md files when responding.
+
+User input: $ARGUMENTS
+
+## High level behavior
+
+Your job will be to turn the spec file `SpecFileRef` into:
+
+- A detailed markdown plan file of setup for CRUD operations based on the spec file under the `Backend/.claude/plans/` directory to generate:
+  - Entity, Repositories (interfaces and implementations)
+  - Services (interfaces and implementations)
+  - APIs (getById, getAll, create, update, delete)
+  - Unit tests and Integration tests
+
+## Check the template
+
+Before generating the CRUD setup,
+
+- Ensure that the spec file provided by the user contains all necessary information for updating entities, repositories, services, APIs, and tests. This includes specific business rules that need to be enforced.
+
+Refer: `Backend/.claude/commands/templates/crud-update-template.md` for more details on format and terminology.
+
+## Step 2. Parse the argument
+
+- Extract the `SpecFileRef` argument from the user input.
+- Validate that the `SpecFileRef` points to an existing spec file.
+
+## Step 3. Execute CRUD update
+
+- Based on the parsed arguments and the spec file, generate the necessary files and code for CRUD operations.
+- Ensure that the entity, repositories, services, APIs, and tests are created/updated according to the specifications.
+- Ensure that all generated code follows the project's guidelines and best practices.
+
+## Step 4. Review and finalize
+
+- Conduct a final check to ensure adherence to the project's guidelines and best practices.
+- Confirm that all CRUD operations covered in the spec file are functioning correctly through unit and integration tests.
+- Generate migrations and run migrations to apply any changes to the database schema.

@@ -1,6 +1,7 @@
 ---
 title: CRUD Setup
 description: Creates Entity, Repositories, Services, APIs, Unit tests and Integration tests setup for CRUD operations.
+arguments: $ARGUMENTS
 argument-hint: ["SpecFileRef", "Versioning (Yes/No)"]
 ---
 
@@ -10,9 +11,9 @@ User input: $ARGUMENTS
 
 ## High level behavior
 
-Your job will be to turn the spec file described in the user input above into:
+Your job will be to turn the spec file `SpecFileRef` into:
 
-- A detailed markdown plan file of setup for CRUD operations based on the spec file under the `Backend/.claude/plans/` directory containing:
+- A detailed markdown plan file of setup for CRUD operations based on the spec file under the `Backend/.claude/plans/` directory to generate:
   - Entity, Repositories (interfaces and implementations)
   - Services (interfaces and implementations)
   - APIs (getById, getAll, create, update, delete)
@@ -24,7 +25,7 @@ Before generating the CRUD setup,
 
 - Ensure that the spec file provided by the user contains all necessary information for creating entities, repositories, services, APIs, and tests. This includes field definitions, relationships, and any specific business rules that need to be enforced.
 
-Refer: `Backend/.claude/commands/templates/crud-template.md` for more details on format and terminology.
+Refer: `Backend/.claude/commands/templates/crud-setup-template.md` for more details on format and terminology.
 
 ## Step 2. Parse the arguments
 
@@ -50,5 +51,5 @@ Else
 
 - Verify that system versioning is correctly applied if enabled.
 - Conduct a final check to ensure adherence to the project's guidelines and best practices.
-- Confirm that all CRUD operations are functioning correctly through unit and integration tests.
+- Confirm that all generated CRUD operations covered in the spec file are functioning correctly through unit and integration tests.
 - Generate migrations and run migrations to apply any changes to the database schema.
