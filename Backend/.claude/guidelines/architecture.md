@@ -27,8 +27,8 @@ Backend/
 2. **Dependency Injection** - Use constructor injection for all dependencies
    - All services should be registered in the DI container
    - Avoid service locator patterns
-   - IC.Application DI container should be configured in IC.Application/ServiceExtension.cs
-   - IC.Infrastructure DI container should be configured in IC.Infrastructure/ServiceExtension.cs
+   - IC.Application DI container should be configured in IC.Application/ServiceExtensions.cs
+   - IC.Infrastructure DI container should be configured in IC.Infrastructure/ServiceExtensions.cs
 
 3. **Interface-Based Design** - Program against interfaces, not implementations
    - Define interfaces in Domain layer
@@ -88,6 +88,16 @@ IC.Infrastructure
 - Consistent naming: PascalCase for DTOs, camelCase in JSON responses
 - Version endpoints if breaking changes are needed
 - Document all public endpoints
+- Use Ardalis for API endpoints
+  ```
+  Endpoints/
+  └── Product/
+      └── GetById.cs
+      └── GetAll.cs
+      └── Create.cs
+      └── Update.cs
+      └── Delete.cs
+  ```
 
 ## Common Patterns
 

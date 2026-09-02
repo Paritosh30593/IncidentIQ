@@ -1,17 +1,9 @@
+using IC.WebAPI.StartupExtensions;
+using Microsoft.AspNetCore.Builder;
+
+
 var builder = WebApplication.CreateBuilder(args);
+builder.ConfigureServices();
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+WebApplication app = builder.Build();
+app.ConfigureApplications();

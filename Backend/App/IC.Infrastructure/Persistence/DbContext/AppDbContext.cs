@@ -1,5 +1,9 @@
-namespace IC.Infrastructure.Persistence.DbContext;
+using Microsoft.EntityFrameworkCore;
 
-public class AppDbContext
+namespace IC.Infrastructure.Persistence.DBContext
 {
+    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+    {
+    }
 }
+
