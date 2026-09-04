@@ -48,39 +48,7 @@ Backend/
 
 ## Database Design
 
-- Use Entity Framework Core conventions
-- Keep migration files versioned and documented
-- The Scripts folder contains raw SQL scripts for views, functions, procedures, and triggers, make sure:
-  - Each script follows the naming convention: <ObjectName>\_<ObjectType>.sql
-  - Include script in migration files when applicable (create or alter) to ensure database consistency
-- Folder structure under IC.Infrastructure (CQRS pattern):
-
-```plaintext
-IC.Infrastructure
-├── Persistence
-│  ├── DbContext/
-│  │   └── AppDbContext.cs
-│  ├── EntityConfigurations/
-│  │   └── ProductConfiguration.cs
-│  ├── Functions/
-│  │   ├── TopCustomer.cs
-│  │   ├── SalesByMonth.cs
-│  │   └── FunctionConfiguration.cs
-│  ├── Views/
-│  │   ├── ProductSales.cs
-│  │   ├── CustomerSummary.cs
-│  │   └── ViewConfiguration.cs
-│  ├── Seed/
-│  │   └── ProductData.cs
-│  └── Scripts/ (*.sql)
-│  │   ├── Views/ # contains SQL view definitions <ViewName>_View.sql
-│  │   ├── Functions/ # contains SQL function definitions <FunctionName>_Function.sql
-│  │   ├── Procedures/ # contains SQL procedure definitions <ProcedureName>_Procedure.sql
-│  │   └── Triggers/ # contains SQL trigger definitions <TriggerName>_Trigger.sql
-│  └── Migrations/
-├── Queries/
-│   └── ProductQueries.cs
-```
+See [Database Standards](./database-standards.md) for EF Core conventions, the SQL Scripts naming convention, the `IC.Infrastructure/Persistence` folder structure, constraint naming conventions, and system versioning.
 
 ## API Design
 

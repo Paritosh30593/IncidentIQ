@@ -12,9 +12,10 @@ The following guidelines provide standards and best practices for development in
 
 - [Architecture Guidelines](./.claude/guidelines/architecture.md) — Overall system design and architectural patterns
 - [Coding Standards](./.claude/guidelines/coding-standards.md) — Code style, naming conventions, and best practices
+- [Database Standards](./.claude/guidelines/database-standards.md) — EF Core conventions, persistence folder structure, and constraint naming conventions
 - [Unit Testing Guidelines](./.claude/guidelines/unit-testing.md) — Unit test design, structure, and conventions
 - [Integration Testing Guidelines](./.claude/guidelines/integration-testing.md) — Integration test patterns and practices
-- Store all the plans and setup files (if any) under the `Backend/.claude/plans/` directory.
+- Store all the plans and related setup files (if any) under the `Backend/.claude/plans/` directory.
 
 ## Checking Documentation
 

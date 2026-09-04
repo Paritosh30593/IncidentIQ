@@ -25,7 +25,7 @@ Before generating the CRUD setup,
 
 - Ensure that the spec file provided by the user contains all necessary information for updating entities, repositories, services, APIs, and tests. This includes specific business rules that need to be enforced.
 
-Refer: `Backend/.claude/commands/templates/crud-update-template.md` for more details on format and terminology.
+Refer: `Backend/.claude/commands/templates/crud-update-template.md` for more details on format and terminology, and [Database Standards](../guidelines/database-standards.md) for constraint naming conventions.
 
 ## Step 2. Parse the argument
 

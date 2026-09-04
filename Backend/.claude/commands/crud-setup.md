@@ -19,13 +19,13 @@ Your job will be to turn the spec file `SpecFileRef` into:
   - APIs (getById, getAll, create, update, delete)
   - Unit tests and Integration tests
 
-## Check the template
+## Step 1. Check the template
 
 Before generating the CRUD setup,
 
 - Ensure that the spec file provided by the user contains all necessary information for creating entities, repositories, services, APIs, and tests. This includes field definitions, relationships, and any specific business rules that need to be enforced.
 
-Refer: `Backend/.claude/commands/templates/crud-setup-template.md` for more details on format and terminology.
+Refer: `Backend/.claude/commands/templates/crud-setup-template.md` for more details on format and terminology, and [Database Standards](../guidelines/database-standards.md) for constraint naming conventions.
 
 ## Step 2. Parse the arguments
 
