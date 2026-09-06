@@ -15,28 +15,28 @@ Folder structure under `IC.Infrastructure` (CQRS pattern):
 ```plaintext
 IC.Infrastructure
 ├── Persistence
-│  ├── DbContext/
-│  │   └── AppDbContext.cs
-│  ├── EntityConfigurations/
-│  │   └── ProductConfiguration.cs
-│  ├── Functions/
-│  │   ├── TopCustomer.cs
-│  │   ├── SalesByMonth.cs
-│  │   └── FunctionConfiguration.cs
-│  ├── Views/
-│  │   ├── ProductSales.cs
-│  │   ├── CustomerSummary.cs
-│  │   └── ViewConfiguration.cs
-│  ├── Seed/
-│  │   └── ProductData.cs
-│  └── Scripts/ (*.sql)
-│  │   ├── Views/ # contains SQL view definitions <ViewName>_View.sql
-│  │   ├── Functions/ # contains SQL function definitions <FunctionName>_Function.sql
-│  │   ├── Procedures/ # contains SQL procedure definitions <ProcedureName>_Procedure.sql
-│  │   └── Triggers/ # contains SQL trigger definitions <TriggerName>_Trigger.sql
-│  └── Migrations/
-├── Queries/
-│   └── ProductQueries.cs
+│   ├── DbContext/
+│   │   └── AppDbContext.cs
+│   ├── EntityConfigurations/
+│   │   └── ProductConfiguration.cs
+│   ├── Functions/
+│   │   ├── TopCustomer.cs
+│   │   ├── SalesByMonth.cs
+│   │   └── FunctionConfiguration.cs
+│   ├── Views/
+│   │   ├── ProductSales.cs
+│   │   ├── CustomerSummary.cs
+│   │   └── ViewConfiguration.cs
+│   ├── Seed/
+│   │   └── ProductData.cs
+│   └── Scripts/ (*.sql)
+│   │   ├── Views/ # contains SQL view definitions <ViewName>_View.sql
+│   │   ├── Functions/ # contains SQL function definitions <FunctionName>_Function.sql
+│   │   ├── Procedures/ # contains SQL procedure definitions <ProcedureName>_Procedure.sql
+│   │   └── Triggers/ # contains SQL trigger definitions <TriggerName>_Trigger.sql
+│   └── Migrations/
+└── Queries/
+    └── ProductQueries.cs
 ```
 
 ## Constraint Naming Conventions
@@ -44,13 +44,13 @@ IC.Infrastructure
 Commonly used terms and their constraint naming conventions, referenced when defining or updating entities via the `/crud-setup` and `/crud-update` commands:
 
 | Term                        | Definition                    | Constraints Naming Convention                        |
-| --------------------------- | ------------------------------ | ---------------------------------------------------- |
-| PK                          | Primary Key                    | `PK_TableName_ColumnName`                             |
-| UUID                        | Universally Unique Identifier  | `UUID_TableName_ColumnName`                           |
-| UK                          | Unique Key                     | `UK_TableName_ColumnName`                             |
-| FK (TableName, ColumnName)  | Foreign Key                    | `FK_TableName_ColumnName_RefTableName_RefColumnName`  |
-| CUK (params1, params2, ...) | Composite Unique Key           | `CUK_TableName_ColumnName1_ColumnName2_...`           |
-| IDX                         | Index Constraint                | `IDX_TableName_ColumnName`                            |
+| --------------------------- | ----------------------------- | ---------------------------------------------------- |
+| PK                          | Primary Key                   | `PK_TableName_ColumnName`                            |
+| UUID                        | Universally Unique Identifier | `UUID_TableName_ColumnName`                          |
+| UK                          | Unique Key                    | `UK_TableName_ColumnName`                            |
+| FK (TableName, ColumnName)  | Foreign Key                   | `FK_TableName_ColumnName_RefTableName_RefColumnName` |
+| CUK (params1, params2, ...) | Composite Unique Key          | `CUK_TableName_ColumnName1_ColumnName2_...`          |
+| IDX                         | Index Constraint              | `IDX_TableName_ColumnName`                           |
 
 ## System Versioning
 

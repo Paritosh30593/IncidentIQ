@@ -8,16 +8,16 @@
 
 ## Naming Conventions
 
-- **Classes, Methods, Properties**: PascalCase
-
-  ```csharp
-  public class UserService
-  public async Task<User> GetUserByIdAsync(int id)
-  public int Id { get; set; } // Primary key of the user
-  public string Name { get; set; } // Name of the user
-  public DateTime ValidFrom { get; set; } // Table versioning: record valid from date
-  public DateTime ValidTo { get; set; } // Table versioning: record valid to date
-  ```
+| Type           | Notation         | Char Mask  | Example          |
+| -------------- | ---------------- | ---------- | ---------------- |
+| Class          | PascalCase       | [A-z][0-9] | UserService      |
+| Method         | PascalCase       | [A-z][0-9] | GetUserByIdAsync |
+| Property       | PascalCase       | [A-z][0-9] | Id               |
+| Local Variable | camelCase        | [A-z][0-9] | userId           |
+| Parameter      | camelCase        | [A-z][0-9] | id               |
+| Constant       | UPPER_SNAKE_CASE | [A-z][0-9] | MAX_RETRIES      |
+| Private Field  | \_camelCase      | [A-z]      | \_userRepository |
+| Interface      | IPascalCase      | [A-z]      | IUserService     |
 
 - **Local Variables, Parameters**: camelCase
 
