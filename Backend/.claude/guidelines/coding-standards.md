@@ -8,16 +8,16 @@
 
 ## Naming Conventions
 
-| Type           | Notation         | Char Mask  | Example          |
-| -------------- | ---------------- | ---------- | ---------------- |
-| Class          | PascalCase       | [A-z][0-9] | UserService      |
-| Method         | PascalCase       | [A-z][0-9] | GetUserByIdAsync |
-| Property       | PascalCase       | [A-z][0-9] | Id               |
-| Local Variable | camelCase        | [A-z][0-9] | userId           |
-| Parameter      | camelCase        | [A-z][0-9] | id               |
-| Constant       | UPPER_SNAKE_CASE | [A-z][0-9] | MAX_RETRIES      |
-| Private Field  | \_camelCase      | [A-z]      | \_userRepository |
-| Interface      | IPascalCase      | [A-z]      | IUserService     |
+| Type           | Notation         | Char Mask     | Example          |
+| -------------- | ---------------- | ------------- | ---------------- |
+| Class          | PascalCase       | [A-Za-z][0-9] | UserService      |
+| Method         | PascalCase       | [A-Za-z][0-9] | GetUserByIdAsync |
+| Property       | PascalCase       | [A-Za-z][0-9] | Id               |
+| Local Variable | camelCase        | [A-Za-z][0-9] | userId           |
+| Parameter      | camelCase        | [A-Za-z][0-9] | id               |
+| Constant       | UPPER_SNAKE_CASE | [A-Za-z][0-9] | MAX_RETRIES      |
+| Private Field  | \_camelCase      | [A-Za-z]      | \_userRepository |
+| Interface      | IPascalCase      | [A-Za-z]      | IUserService     |
 
 - **Local Variables, Parameters**: camelCase
 
@@ -113,7 +113,6 @@
 
 - Throw meaningful exceptions with descriptive messages
 - Don't catch exceptions you can't handle
-- Use Serilog for structured logging and store logs appropriately in logs/ directory
 - Use specific exception types
 
   ```csharp
@@ -136,7 +135,7 @@
 
 ## Logging
 
-- Use structured logging (ILogger)
+- Use structured logging (ILogger, backed by Serilog) and store logs appropriately in the logs/ directory
 - Include context in log messages
 - Use appropriate log levels: Debug, Information, Warning, Error, Critical
   ```csharp

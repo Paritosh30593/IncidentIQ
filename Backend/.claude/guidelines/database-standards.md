@@ -4,7 +4,7 @@
 
 - Use Entity Framework Core conventions
 - Keep migration files versioned and documented
-- The Scripts folder contains raw SQL scripts for views, functions, procedures, and triggers, make sure:
+- The Scripts folder contains raw SQL scripts for views, functions, procedures, and triggers. Ensure:
   - Each script follows the naming convention: `<ObjectName>_<ObjectType>.sql`
   - Include script in migration files when applicable (create or alter) to ensure database consistency
 
@@ -29,7 +29,7 @@ IC.Infrastructure
 │   │   └── ViewConfiguration.cs
 │   ├── Seed/
 │   │   └── ProductData.cs
-│   └── Scripts/ (*.sql)
+│   ├── Scripts/ (*.sql)
 │   │   ├── Views/ # contains SQL view definitions <ViewName>_View.sql
 │   │   ├── Functions/ # contains SQL function definitions <FunctionName>_Function.sql
 │   │   ├── Procedures/ # contains SQL procedure definitions <ProcedureName>_Procedure.sql

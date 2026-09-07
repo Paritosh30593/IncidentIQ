@@ -1,9 +1,9 @@
 ---
 description: Generate a commit message for your code changes.
 allowed-tools:
-  - git status *
-  - git diff --staged
-  - git commit *
+  - Bash(git status:*)
+  - Bash(git diff --staged:*)
+  - Bash(git commit:*)
 ---
 
 ## Context:
@@ -18,7 +18,7 @@ Analyze the code changes and generate a concise and descriptive commit message t
 ## Commit types with emojis:
 
 - **feat**: ✨ A new feature
-- **fix**: 🐛 A bug fi!x
+- **fix**: 🐛 A bug fix
 - **refactor**: ♻️ Code refactoring
 - **docs**: 📝 Documentation changes
 - **style**: 💄 Code style changes (formatting, missing semi-colons, etc.)

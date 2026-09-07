@@ -7,13 +7,13 @@ The IncidentIQ backend follows a layered architecture pattern:
 ```plaintext
 Backend/
 ├── App/                      # CLEAN architecture layers
-|   ├── IC.Application/        # Application: business logic orchestration
-|   ├── IC.Domain/             # Domain: entities, value objects, domain services
-|   ├── IC.Infrastructure/     # Infrastructure: external services, data access implementations
-|   └── IC.WebAPI/             # Web API: controllers, HTTP concerns
+│   ├── IC.Application/        # Application: business logic orchestration
+│   ├── IC.Domain/             # Domain: entities, value objects, domain services
+│   ├── IC.Infrastructure/     # Infrastructure: external services, data access implementations
+│   └── IC.WebAPI/             # Web API: controllers, HTTP concerns
 └── Tests/                    # Unit and integration tests
-   ├── IC.Unit/                # Unit tests
-   └── IC.Integration/         # Integration tests
+    ├── IC.Unit/                # Unit tests
+    └── IC.Integration/         # Integration tests
 ```
 
 ## Design Principles
@@ -43,7 +43,7 @@ Backend/
    - Use appsettings.json and environment variables
    - Avoid hardcoding configuration values
    - IC.WebAPI contains extensions for service registration and middleware:
-     - StartupExtensions/ConfigureAppExtensions.cs for WebApplication -> app (middleware)
+     - StartupExtensions/ConfigureApplicationsExtensions.cs for WebApplication -> app (middleware)
      - StartupExtensions/ConfigureServicesExtension.cs for WebApplicationBuilder -> builder (service registration)
 
 ## Database Design

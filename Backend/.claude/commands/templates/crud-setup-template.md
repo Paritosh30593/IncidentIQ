@@ -15,16 +15,16 @@
 - Create: Yes/No (Default Yes)
 - Update: Yes/No (Default Yes)
 - Delete: Yes/No (Default Yes)
-- GetBy<Key>: Yes/No (Default No).
+- GetBy<Key>: Yes/No (Default No)
 
-## CRUD Coverage Extended (Optional can be removed from spec if not needed)
+## CRUD Coverage Extended (Optional, can be removed from spec if not needed)
 
 - `FunctionName` 1
   ...
 - `FunctionName` 2
   ...
 
-**Note**: `FunctionName` needs to be translated to services, repository, api, test methodname.
+**Note**: `FunctionName` needs to be translated to service, repository, API, and test method names.
 
 ## Open Questions
 

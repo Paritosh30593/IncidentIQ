@@ -2,7 +2,7 @@
 title: CRUD Setup
 description: Creates Entity, Repositories, Services, APIs, Unit tests and Integration tests setup for CRUD operations.
 arguments: $ARGUMENTS
-argument-hint: ["SpecFileRef", "Versioning (Yes/No)"]
+argument-hint: ["SpecFileRef", "Versioning [Yes/No (default No)]"]
 ---
 
 You are helping to set up CRUD operations for a new feature based on the user input below. Always adhere to any rules or requirements set out in any CLAUDE.md files when responding.
@@ -16,7 +16,7 @@ Your job will be to turn the spec file `SpecFileRef` into:
 - A detailed markdown plan file of setup for CRUD operations based on the spec file under the `Backend/.claude/plans/` directory to generate:
   - Entity, Repositories (interfaces and implementations)
   - Services (interfaces and implementations)
-  - APIs (getById, getAll, create, update, delete)
+  - APIs (getById, getAll, create, update, delete, ...)
   - Unit tests and Integration tests
 
 ## Step 1. Check the template
@@ -25,7 +25,7 @@ Before generating the CRUD setup,
 
 - Ensure that the spec file provided by the user contains all necessary information for creating entities, repositories, services, APIs, and tests. This includes field definitions, relationships, and any specific business rules that need to be enforced.
 
-Refer: `Backend/.claude/commands/templates/crud-setup-template.md` for more details on format and terminology, and [Database Standards](../guidelines/database-standards.md) for constraint naming conventions.
+Refer to `Backend/.claude/commands/templates/crud-setup-template.md` for more details on format and terminology, and [Database Standards](../guidelines/database-standards.md) for constraint naming conventions.
 
 ## Step 2. Parse the arguments
 
@@ -53,3 +53,4 @@ Else
 - Conduct a final check to ensure adherence to the project's guidelines and best practices.
 - Confirm that all generated CRUD operations covered in the spec file are functioning correctly through unit and integration tests.
 - Generate migrations and run migrations to apply any changes to the database schema.
+- Document any deviations from the spec file and ensure they are communicated to the relevant stakeholders.

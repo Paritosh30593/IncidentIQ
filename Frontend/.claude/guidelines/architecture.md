@@ -6,15 +6,45 @@ Early scaffolding. Treat anything below as intended direction, not an establishe
 
 ## Structure
 
-- `src/pages/<PageName>/` — route-level components. Each folder contains `index.tsx` (the page) and optionally `<PageName>.module.css`. Pages load asynchronously based on their folder under `src/pages`, for routing and bundle splitting.
-- `src/components/common/<ComponentName>/` — shared common components used across pages (Navbar, Footer, Sidebar, etc.) — **only** this category goes here.
-- `src/components/ui/<ComponentName>/` — reusable, generic UI primitives (buttons, inputs, modals, etc.), imported from `shadcn` — **only** this category goes here.
-  - Both component folders contain `index.ts` (re-exports the component), `<ComponentName>.tsx`, and optionally `<ComponentName>.module.css`. Keep the folder flat — avoid deep nesting for small components.
-- `src/features/<feature>/` — per-feature grouping. Each feature owns its `api.ts` (raw calls), an `I<Feature>.ts` interface file (types), and a `hooks/` folder for TanStack Query hooks wrapping those calls. Add new features as siblings of `src/features/feature1/`.
-- `src/providers/` — app-wide context providers, one file per concern (auth, query client, etc.).
-- `src/lib/api/httpClient.ts` — shared axios instance that feature `api.ts` modules should use rather than calling `axios`/`fetch` directly.
-- `src/lib/utils.ts` — shared, cross-feature utility helpers only. Feature-specific helpers stay inside the feature folder.
-- `src/config/` — app configuration (e.g. MSAL).
+The IncidentIQ frontend follows a layered architecture pattern:
+
+```plaintext
+src/
+├── pages/          # Page route-level components. Pages load asynchronously for routing and bundle splitting
+|   └── <PageName>/
+|      ├── index.tsx
+|      └── <PageName>.module.css
+├── components/      # Shared and UI components
+|   ├── common/      # Shared common components used across pages (Navbar, Footer, Sidebar, etc.) — **only** this category goes here.
+|   |   └── <ComponentName>/
+|   |       ├── index.ts
+|   |       ├── <ComponentName>.tsx
+|   |       └── <ComponentName>.module.css
+|   └── ui/          # Reusable, generic UI primitives (buttons, inputs, modals, etc.) — **only** this category goes here.
+|       └── <ComponentName>/
+|           ├── index.ts
+|           ├── <ComponentName>.tsx
+|           └── <ComponentName>.module.css
+├── features/                   # Feature-specific modules, each containing API calls, types, and hooks
+|   └── <FeatureName>/
+|       ├── api.ts              # All API calls for the feature using axios (Endpoint function naming convention: <type><Entity><Action|Params> e.g., getUserAll, getUserByIdAndName, createUser, updateUser, deleteUser, ...). Should use the shared axios instance from `src/lib/api/httpClient.ts`.
+|       ├── I<FeatureName>.ts   # Entity Type definitions for the feature (e.g., IUser, IPost corresponds to backend DTO models)
+|       ├── components/         # Feature-specific components used only within this feature.
+|       |   └── <ComponentName>/
+|       |       ├── index.ts
+|       |       ├── <ComponentName>.tsx
+|       |       └── <ComponentName>.module.css
+|       ├── lib/                # (optional) Feature-specific library code (helpers, utilities, etc.)
+|       |   └── <HelperName>.ts
+|       └── hooks/              # TanStack Query hooks for the feature.
+|           └── use<FeatureName><Action>.ts # Hook naming convention: use<Entity><Action|Endpoint Params>.ts e.g., useUserAll, useUserByIdAndName, useCreateUser, useUpdateUser, useDeleteUser, ...
+├── providers/              # app-wide context providers, one file per concern (auth, query client, etc.).
+├── lib/                    # Shared, cross-feature library code (e.g., API instances, utility helpers)
+|   ├── api/                # Shared global API instances
+|   |   └── httpClient.ts
+|   └── utils.ts            # Shared, cross-feature utility helpers. Feature-specific helpers stay inside the feature folder.
+└── config/                 # App configuration (e.g., MSAL)
+```
 
 ## Principles
 
