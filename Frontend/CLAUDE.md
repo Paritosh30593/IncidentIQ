@@ -14,8 +14,13 @@ The following guidelines provide standards and conventions for development in th
 
 - [Architecture Guidelines](./.claude/guidelines/architecture.md) — folder structure (`pages`, `components`, `features`, `providers`, `lib`) and where new code goes
 - [Coding Standards](./.claude/guidelines/coding-standards.md) — TypeScript/React conventions and the intended tech stack (axios, TanStack Query, Redux Toolkit, shadcn)
+
+**DO NOT** add test cases for now
+
+<!--
 - [Unit Testing Guidelines](./.claude/guidelines/unit-testing.md)
 - [Integration Testing Guidelines](./.claude/guidelines/integration-testing.md)
+-->
 
 ## Commands
 
