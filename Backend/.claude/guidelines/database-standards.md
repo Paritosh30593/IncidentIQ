@@ -35,8 +35,11 @@ IC.Infrastructure
 │   │   ├── Procedures/ # contains SQL procedure definitions <ProcedureName>_Procedure.sql
 │   │   └── Triggers/ # contains SQL trigger definitions <TriggerName>_Trigger.sql
 │   └── Migrations/
-└── Queries/
-    └── ProductQueries.cs
+└── Repositories/
+    ├── Query/
+    │   └── ProductQueries.cs
+    └── Command/
+        └── ProductCommands.cs
 ```
 
 ## Constraint Naming Conventions

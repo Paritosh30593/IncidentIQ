@@ -1,0 +1,41 @@
+# Build output
+**/bin/
+**/obj/
+
+# IDE and user-specific files
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Git metadata
+.git/
+.gitignore
+
+# Logs and temporary files
+**/logs/
+**/*.log
+**/*.tmp
+**/*.temp
+
+# Test output and coverage
+TestResults/
+coverage/
+coverage.xml
+*.coverage
+*.coveragexml
+
+# Docker artifacts
+docker-compose*
+*.dockerignore
+
+# Environment and secrets
+.env
+.env.*
+appsettings.*.local.json
+
+# OS files
+.DS_Store
+Thumbs.db

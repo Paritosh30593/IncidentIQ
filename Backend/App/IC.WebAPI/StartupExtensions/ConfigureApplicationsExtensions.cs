@@ -9,16 +9,12 @@ namespace IC.WebAPI.StartupExtensions
     {
         public static void ConfigureApplications(this WebApplication app)
         {
-            // Configure middleware here
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
-                app.UseMiddleware<ExceptionHandlingMiddleware>();
             }
-            else
-            {
-                app.UseMiddleware<ExceptionHandlingMiddleware>();
-            }
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseHsts();
             app.UseHttpsRedirection();
@@ -27,8 +23,11 @@ namespace IC.WebAPI.StartupExtensions
 
             app.UseSerilogRequestLogging();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+            if (app.Environment.IsProduction())
+            {
+                app.UseAuthentication();
+                app.UseAuthorization();
+            }
 
             app.MapControllers();
 

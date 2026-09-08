@@ -3,7 +3,7 @@
 # --- NodeJS Image ---
 FROM node:24-slim AS build
 
-# Directory for deployed code on container
+# Directory for building code on container
 WORKDIR /app
 
 # Copy package dependencies to /app
@@ -23,13 +23,13 @@ RUN npm run build
 # --- Nginx Image ---
 FROM nginx:1.27-alpine AS production
 
-# --- Copy nginx config from project to nginx image
+# Copy nginx config from project to nginx image
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# --- Copy dist from node build image to nginx image
+# Copy dist from node build image to nginx image
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# --- Expose port to listen in final nginx container ---
+# Expose port to listen in final nginx container
 EXPOSE 80
 
 # --- Set the default container command ---
