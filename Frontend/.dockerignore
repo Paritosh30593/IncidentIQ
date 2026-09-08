@@ -1,0 +1,25 @@
+node_modules
+dist
+.git
+.env
+.env.local
+
+# Docker-related (not needed inside build context)
+Dockerfile
+.dockerignore
+
+# Editor/OS cruft
+.vscode
+.idea
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+*.log
+
+# Docs/AI-agent guidance (not needed for build)
+README.md
+CLAUDE.md
+.claude
