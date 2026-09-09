@@ -1,0 +1,98 @@
+# ==============================================================================================
+# |----- CI workflow for build and test the backend (.NET) & frontend (Node.js) projects. -----|
+# ==============================================================================================
+name: CI Development
+
+# Will run on push and pull request events targeting the main or master branches.
+on:
+  push:
+  pull_request:
+    branches: [main, master]
+
+# This workflow is specifically for the development branch CI process.
+permissions:
+  contents: read
+
+# The concurrency group ensures that only one CI job for the development branch runs at a time.
+concurrency:
+  group: ci-dev-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The backend job handles building and testing the .NET backend.
+  backend:
+    name: Backend
+    # Ubuntu is used as the runner environment for the backend job.
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        # the default working directory for all run steps in this job
+        working-directory: Backend
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up .NET SDK
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: Backend/**/*.csproj
+
+      # Step 3: Restore dependencies
+      - name: Restore dependencies
+        # the working directory is set by the defaults section
+        run: dotnet restore IncidentIQ.slnx
+
+      # Step 4: Build the project
+      - name: Build the project
+        # the working directory is set by the defaults section
+        run: dotnet build IncidentIQ.slnx --configuration Release --no-restore
+
+      # Step 5: Run tests
+      - name: Run tests
+        # the working directory is set by the defaults section
+        run: dotnet test  IncidentIQ.slnx --configuration Release --no-build --verbosity normal
+
+  # The frontend job handles building and testing the Node.js frontend.
+  frontend:
+    name: Frontend
+    # Ubuntu is used as the runner environment for the frontend job.
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        # the default working directory for all run steps in this job
+        working-directory: Frontend
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js SDK
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: npm
+          cache-dependency-path: Frontend/package-lock.json
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        # the working directory is set by the defaults section
+        run: npm ci
+
+      # Step 4: Lint to remove code style issues
+      - name: Lint
+        # the working directory is set by the defaults section
+        run: npm run lint
+
+      # Step 5: Build the project
+      - name: Build
+        # the working directory is set by the defaults section
+        run: npm run build
