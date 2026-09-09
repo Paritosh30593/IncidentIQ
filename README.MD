@@ -2,7 +2,7 @@
 
 IncidentIQ is an incident management system that helps teams quickly report, track, manage, and resolve incidents efficiently.
 
-> **Status:** early scaffolding — backend boilerplate is in place; frontend and infrastructure are not yet implemented.
+> **Status:** early scaffolding — backend and frontend boilerplate are in place; local environment orchestration is not yet configured.
 
 ## Repository Structure
 
@@ -13,11 +13,11 @@ IncidentIQ/
 │   │   ├── IC.Domain/         # Entities, value objects, domain services
 │   │   ├── IC.Application/    # Business logic orchestration
 │   │   ├── IC.Infrastructure/ # Data access, external services (EF Core)
-│   │   └── IC.WebAPI/         # Controllers, HTTP concerns
+│   │   └── IC.WebAPI/         # Controllers, HTTP concerns (includes Dockerfile)
 │   └── Tests/
 │       ├── IC.Unit/           # Unit tests
 │       └── IC.Integration/    # Integration tests
-├── Frontend/            # Client application (not yet started)
+├── Frontend/            # React + TypeScript + Vite client (early scaffolding, includes Dockerfile)
 └── docker-compose.yml   # Local environment orchestration (not yet configured)
 ```
 
@@ -44,7 +44,23 @@ dotnet test
 
 ## Frontend
 
-Not yet implemented.
+- **Stack:** React, TypeScript, Vite (React Compiler enabled)
+- **Status:** early scaffolding — see [`Frontend/CLAUDE.md`](Frontend/CLAUDE.md) for what's implemented vs. placeholder
+
+### Getting Started
+
+```bash
+cd Frontend
+npm install
+npm run dev
+```
+
+### Building
+
+```bash
+cd Frontend
+npm run build
+```
 
 ## License
 
