@@ -48,7 +48,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ vars.ACR_NAME }}.azurecr.io/incidentiq-backend
+          images: ${{ vars.ACR_LOGIN_SERVER }}/incidentiq-backend
           tags: |
             type=raw,value=latest
             type=sha,prefix=
@@ -97,7 +97,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ vars.ACR_NAME }}.azurecr.io/incidentiq-frontend
+          images: ${{ vars.ACR_LOGIN_SERVER }}/incidentiq-frontend
           tags: |
             type=raw,value=latest
             type=sha,prefix=
