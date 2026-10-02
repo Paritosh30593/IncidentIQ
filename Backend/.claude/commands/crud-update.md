@@ -11,17 +11,19 @@ User input: $ARGUMENTS
 
 ## High level behavior
 
-Your job will be to turn the spec file `SpecFileRef` into:
+Your job will be to turn the spec file `SpecFileRef` into a detailed markdown plan file only. Do **NOT** generate or modify any source code, migrations, or tests as part of this command — your output is limited to the plan file.
 
-- A detailed markdown plan file of setup for CRUD operations based on the spec file under the `Backend/.claude/plans/` directory to generate:
+- Produce a detailed markdown plan file of the update to CRUD operations based on the spec file under the `Backend/.claude/plans/` directory, covering:
   - Entity, Repositories (interfaces and implementations)
   - Services (interfaces and implementations)
   - APIs (getById, getAll, create, update, delete)
   - Unit tests and Integration tests
 
+Once the plan file is written, stop and let the user review it. The user will explicitly ask you to execute the plan afterward — do not proceed to implementation on your own.
+
 ## Step 1. Check the template
 
-Before generating the CRUD setup,
+Before planning the CRUD update,
 
 - Ensure that the spec file provided by the user contains all necessary information for updating entities, repositories, services, APIs, and tests. This includes specific business rules that need to be enforced.
 
@@ -40,15 +42,17 @@ Else
     - The entity will not have system versioning enabled.
 ```
 
-## Step 3. Execute CRUD update
+## Step 3. Plan the CRUD update
 
-- Based on the parsed arguments and the spec file, generate the necessary files and code for CRUD operations.
-- Ensure that the entity, repositories, services, APIs, and tests are created/updated according to the specifications.
-- Ensure that all generated code follows the project's guidelines and best practices.
+- Based on the parsed arguments and the spec file, plan out the necessary file and code changes for CRUD operations and document them in the plan file — do not create or modify them yet.
+- The plan should describe how the entity, repositories, services, APIs, and tests will be created/updated according to the specifications.
+- Ensure the planned approach follows the project's guidelines and best practices.
 
-## Step 4. Review and finalize
+## Step 4. Plan review and finalization steps
 
-- Conduct a final check to ensure adherence to the project's guidelines and best practices.
-- Confirm that all CRUD operations covered in the spec file are functioning correctly through unit and integration tests.
-- Generate migrations and run migrations to apply any changes to the database schema.
-- Document any deviations from the spec file and ensure they are communicated to the relevant stakeholders.
+- Include a final review checklist in the plan to ensure adherence to the project's guidelines and best practices.
+- Include in the plan how unit and integration tests will confirm that all CRUD operations covered in the spec file work correctly.
+- Include in the plan the migrations that will need to be generated and run to apply schema changes.
+- Include a note in the plan to document any deviations from the spec file and how they'll be communicated to relevant stakeholders.
+
+These steps describe what the plan file should contain — none of them should be carried out until the user reviews the plan and explicitly asks you to execute it.

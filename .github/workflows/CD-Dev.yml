@@ -1,0 +1,138 @@
+# ==============================================================================================
+# |----- CD workflow for backend (.NET) & frontend (Node.js) projects. -----|
+# ==============================================================================================
+name: CD Development
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cd-dev-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================================
+  # Build and publish Backend (.NET) container image to Azure Container Registry (ACR)
+  # ============================================================================================
+  backend:
+    name: Build & Push Backend
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to Azure Container Registry
+        run: az acr login --name "${{ vars.ACR_NAME }}"
+
+      - name: Extract Docker metadata for Backend
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.ACR_NAME }}.azurecr.io/incidentiq-backend
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=
+            type=ref,event=branch
+
+      - name: Build and push Backend Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: Backend
+          file: Backend/App/IC.WebAPI/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================================================================
+  # Build and publish Frontend (React/Vite) container image to Azure Container Registry (ACR)
+  # ============================================================================================
+  frontend:
+    name: Build & Push Frontend
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to Azure Container Registry
+        run: az acr login --name "${{ vars.ACR_NAME }}"
+
+      - name: Extract Docker metadata for Frontend
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.ACR_NAME }}.azurecr.io/incidentiq-frontend
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=
+            type=ref,event=branch
+
+      - name: Build and push Frontend Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: Frontend
+          file: Frontend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================================================================
+  # Deployment Summary
+  # ============================================================================================
+  summary:
+    name: Deployment Summary
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deployment Summary
+        run: |
+          echo "### Deployment Status 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "**Backend Image:** \`${{ vars.ACR_NAME }}.azurecr.io/incidentiq-backend:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Frontend Image:** \`${{ vars.ACR_NAME }}.azurecr.io/incidentiq-frontend:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "Images successfully published to Azure Container Registry." >> $GITHUB_STEP_SUMMARY
+
+      # ----------------------------------------------------------------------------------------
+      # Optional: Azure Container Apps deployment example
+      # Uncomment and configure the Container Apps resource to enable
+      # ----------------------------------------------------------------------------------------
+      # - name: Deploy Frontend to Azure Container App
+      #   run: az containerapp update --name incidentiq-frontend --resource-group incidentiq-dev --image "${{ vars.ACR_NAME }}.azurecr.io/incidentiq-frontend:latest"
