@@ -3,6 +3,7 @@ using IC.Application;
 using IC.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -24,7 +25,10 @@ namespace IC.WebAPI.StartupExtensions
                     .ReadFrom.Services(services);
             });
 
-            builder.Services.ConfigureInfrastructureServices(builder.Configuration);
+            builder.Services.ConfigureInfrastructureServices(
+                builder.Configuration,
+                builder.Configuration.GetValue<bool>("AzureSql:UseManagedIdentity"));
+
             builder.Services.ConfigureApplicationServices(builder.Configuration);
 
             builder.Services.AddHttpContextAccessor();
@@ -49,13 +53,13 @@ namespace IC.WebAPI.StartupExtensions
                             ValidIssuers =
                             [
                                 $"https://sts.windows.net/{tenantId}/",
-                            $"https://login.microsoftonline.com/{tenantId}/v2.0"
+                                $"https://login.microsoftonline.com/{tenantId}/v2.0"
                             ],
                             ValidateAudience = true,
                             ValidAudiences =
                             [
                                 appId,
-                            $"api://{appId}"
+                                $"api://{appId}"
                             ]
                         };
                     });
