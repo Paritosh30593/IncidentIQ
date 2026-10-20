@@ -1,4 +1,4 @@
-﻿# Database migrations (EF Core + Azure SQL + GitHub Actions)
+# Database migrations (EF Core + Azure SQL + GitHub Actions)
 
 ## How it works
 

@@ -161,43 +161,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Skip when nothing migration-related changed (manual runs always apply).
-      # EF skips already-applied migrations anyway, so this only saves time.
-      - name: Detect migration-related changes
-        id: filter
-        env:
-          BEFORE_SHA: ${{ github.event.before }}
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ -z "$BEFORE_SHA" ] \
-             || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] \
-             || ! git cat-file -e "$BEFORE_SHA" 2>/dev/null; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"; exit 0
-          fi
-          if git diff --name-only "$BEFORE_SHA" "$GITHUB_SHA" -- \
-              'Backend/App/IC.Infrastructure/Persistence/' \
-              'Backend/App/IC.Domain/' \
-              'dotnet-tools.json' | grep -q .; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No migration-related changes, skipping." >> "$GITHUB_STEP_SUMMARY"
-          fi
-
       - name: Set up .NET
-        if: steps.filter.outputs.changed == 'true'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
 
       - name: Build migrations
-        if: steps.filter.outputs.changed == 'true'
         working-directory: Backend
         run: |
           dotnet tool restore
           dotnet build App/IC.WebAPI/IC.WebAPI.csproj --configuration Release
 
       - name: Log in to Azure (migration identity)
-        if: steps.filter.outputs.changed == 'true'
         uses: azure/login@v2
         with:
           client-id: ${{ vars.AZURE_MIGRATION_CLIENT_ID }}
@@ -205,7 +180,6 @@ jobs:
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Allow runner IP on SQL firewall
-        if: steps.filter.outputs.changed == 'true'
         run: |
           RUNNER_IP=$(curl -s https://api.ipify.org)
           echo "RUNNER_IP=$RUNNER_IP" >> "$GITHUB_ENV"
@@ -221,7 +195,6 @@ jobs:
       # Serverless Azure SQL auto-pauses; the first connection wakes it and fails with
       # "database is not currently available". Retry until it is online (resume takes ~1 min).
       - name: Apply EF Core migrations to Azure SQL
-        if: steps.filter.outputs.changed == 'true'
         working-directory: Backend
         shell: bash
         run: |
