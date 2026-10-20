@@ -6,7 +6,7 @@ name: CD Development
 # Additional GitHub Actions variables required by deploy-backend:
 #   AZURE_SQL_SERVER: Azure SQL server hostname, without tcp: or port
 #   AZURE_SQL_DATABASE: Azure SQL database name
-#   API_BASE_URL: Backend API base URL embedded in the frontend bundle at build time
+#   BACKEND_INTERNAL_URL: Backend internal ingress URL (https://<app>.internal.<env-domain>, no trailing slash) proxied by the frontend Nginx
 #   AZURE_SQL_RESOURCE_GROUP (optional): resource group of the SQL server, defaults to ACR_RESOURCE_GROUP
 # Additional variable required by migrate-database:
 #   AZURE_MIGRATION_CLIENT_ID: client ID of the migration identity (pd-az-sql-migrate-westus-02)
@@ -129,8 +129,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            VITE_API_BASE_URL=${{ vars.API_BASE_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -284,7 +282,8 @@ jobs:
           az containerapp update \
             --name incidentiq-frontend \
             --resource-group "${{ vars.ACR_RESOURCE_GROUP }}" \
-            --image "${{ vars.ACR_LOGIN_SERVER }}/incidentiq-frontend:latest"
+            --image "${{ vars.ACR_LOGIN_SERVER }}/incidentiq-frontend:latest" \
+            --set-env-vars "BACKEND_URL=${{ vars.BACKEND_INTERNAL_URL }}"
 
   # ============================================================================================
   # Deployment Summary
