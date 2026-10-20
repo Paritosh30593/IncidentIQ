@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using IC.Infrastructure.Persistence.DBContext;
 using Microsoft.Data.SqlClient;
 using IC.Application.RepositoryContracts.Common;
+using IC.Application.RepositoryContracts.Query.Test;
 using IC.Infrastructure.Repositories.Common;
+using IC.Infrastructure.Repositories.Query;
 
 
 namespace IC.Infrastructure
@@ -44,6 +46,7 @@ namespace IC.Infrastructure
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDapperUnitOfWork, DapperUnitOfWork>();
+            services.AddScoped<ITestQueries, TestQueries>();
         }
     }
 }

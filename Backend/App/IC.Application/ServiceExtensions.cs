@@ -1,3 +1,4 @@
+using IC.Application.Services.Test;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 
@@ -7,7 +8,7 @@ namespace IC.Application
     {
         public static void ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // Register application layer services here
+            services.AddScoped<ITestService, TestService>();
         }
     }
 }

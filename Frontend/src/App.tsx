@@ -1,20 +1,15 @@
-import { useEffect } from 'react';
 import './App.css';
-import { httpClient } from './lib/api/httpClient';
+import { useTestGet } from './features/test/hooks/useTestGet';
 
 function App() {
-    useEffect(() => {
-        const checkTest = async () => {
-            const response = await httpClient.get('/test');
-            console.log(response);
-        };
-        checkTest();
-    }, []);
+    const { data, isLoading, error } = useTestGet();
 
     return (
         <>
             <h1>Hello, World!</h1>
-            <p>Check the console for the test API response.</p>
+            {isLoading && <p>Loading...</p>}
+            {error && <p>Failed to load test data.</p>}
+            {data && <p>{data.sampleText}</p>}
         </>
     )
 }
