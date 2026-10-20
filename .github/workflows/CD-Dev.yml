@@ -218,15 +218,29 @@ jobs:
 
       # Applies only pending migrations (tracked in __EFMigrationsHistory); no-op when up to date.
       # "Active Directory Default" picks up the Azure CLI login of the migration identity.
+      # Serverless Azure SQL auto-pauses; the first connection wakes it and fails with
+      # "database is not currently available". Retry until it is online (resume takes ~1 min).
       - name: Apply EF Core migrations to Azure SQL
         if: steps.filter.outputs.changed == 'true'
         working-directory: Backend
+        shell: bash
         run: |
-          dotnet ef database update \
-            --project App/IC.Infrastructure \
-            --startup-project App/IC.WebAPI \
-            --configuration Release --no-build \
-            --connection "Server=tcp:${{ vars.AZURE_SQL_SERVER }},1433;Initial Catalog=${{ vars.AZURE_SQL_DATABASE }};Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;"
+          for attempt in 1 2 3 4 5 6; do
+            if dotnet ef database update \
+              --project App/IC.Infrastructure \
+              --startup-project App/IC.WebAPI \
+              --configuration Release --no-build \
+              --connection "Server=tcp:${{ vars.AZURE_SQL_SERVER }},1433;Initial Catalog=${{ vars.AZURE_SQL_DATABASE }};Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;" \
+              2>&1 | tee "$RUNNER_TEMP/ef.log"; then
+              exit 0
+            fi
+            if ! grep -q "is not currently available" "$RUNNER_TEMP/ef.log"; then
+              echo "Migration failed for a reason other than a paused database."; exit 1
+            fi
+            echo "Database is resuming, retrying in 30s (attempt $attempt/6)..."
+            sleep 30
+          done
+          echo "Database did not come online in time."; exit 1
 
       # Always remove the temporary firewall rule, even if the migration failed
       - name: Remove runner IP from SQL firewall
