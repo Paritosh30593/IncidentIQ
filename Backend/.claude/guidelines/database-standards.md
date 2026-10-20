@@ -7,6 +7,9 @@
 - The Scripts folder contains raw SQL scripts for views, functions, procedures, and triggers. Ensure:
   - Each script follows the naming convention: `<ObjectName>_<ObjectType>.sql`
   - Include script in migration files when applicable (create or alter) to ensure database consistency
+  - Scripts are embedded resources (`Persistence/Scripts/**/*.sql`) and applied from a migration with `migrationBuilder.ApplySqlScript("<Folder>/<File>.sql")`; every script change needs a **new** migration (never edit applied migrations)
+  - Scripts must be re-runnable (`CREATE OR ALTER`, `MERGE`) and must not contain `GO`
+  - Migrations are applied by the CD pipeline with `dotnet ef database update`; test them against a local DB first. See [docs/database-migrations.md](../../../docs/database-migrations.md)
 
 ## Folder structure under `IC.Infrastructure` (CQRS pattern):
 
@@ -31,7 +34,7 @@ IC.Infrastructure
 │   │   ├── Views/ # contains SQL view definitions <ViewName>_View.sql
 │   │   ├── Functions/ # contains SQL function definitions <FunctionName>_Function.sql
 │   │   ├── Procedures/ # contains SQL procedure definitions <ProcedureName>_Procedure.sql
-│   │   ├── Publish / # contains standalone migration.sql script for live enviroment deployment
+│   │   ├── Publish / # optional, currently unused (migrations are applied by the pipeline via EF)
 │   │   └── Triggers/ # contains SQL trigger definitions <TriggerName>_Trigger.sql
 │   └── Migrations/
 └── Repositories/

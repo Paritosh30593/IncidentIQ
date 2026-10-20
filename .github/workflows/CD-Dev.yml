@@ -7,6 +7,10 @@ name: CD Development
 #   AZURE_SQL_SERVER: Azure SQL server hostname, without tcp: or port
 #   AZURE_SQL_DATABASE: Azure SQL database name
 #   API_BASE_URL: Backend API base URL embedded in the frontend bundle at build time
+#   AZURE_SQL_RESOURCE_GROUP (optional): resource group of the SQL server, defaults to ACR_RESOURCE_GROUP
+# Additional variable required by migrate-database:
+#   AZURE_MIGRATION_CLIENT_ID: client ID of the migration identity (pd-az-sql-migrate-westus-02)
+# See docs/database-migrations.md for the one-time identity/SQL setup.
 # AZURE_CLIENT_ID is used for both GitHub OIDC login and the backend SQL identity.
 
 on:
@@ -131,11 +135,114 @@ jobs:
           cache-to: type=gha,mode=max
 
   # ============================================================================================
+  # Apply pending EF Core migrations to Azure SQL (runs before the new backend is deployed)
+  # Uses a dedicated migration identity (DDL rights); the app identity keeps data-only rights.
+  # ============================================================================================
+  migrate-database:
+    name: Migrate Database
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    # Never run two migrations at the same time, and never cancel one midway.
+    concurrency:
+      group: db-migrate
+      cancel-in-progress: false
+
+    env:
+      SQL_RESOURCE_GROUP: ${{ vars.ACR_RESOURCE_GROUP }}
+      SQL_FQDN: ${{ vars.AZURE_SQL_SERVER }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Skip when nothing migration-related changed (manual runs always apply).
+      # EF skips already-applied migrations anyway, so this only saves time.
+      - name: Detect migration-related changes
+        id: filter
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ -z "$BEFORE_SHA" ] \
+             || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] \
+             || ! git cat-file -e "$BEFORE_SHA" 2>/dev/null; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if git diff --name-only "$BEFORE_SHA" "$GITHUB_SHA" -- \
+              'Backend/App/IC.Infrastructure/Persistence/' \
+              'Backend/App/IC.Domain/' \
+              'dotnet-tools.json' | grep -q .; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No migration-related changes, skipping." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Set up .NET
+        if: steps.filter.outputs.changed == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build migrations
+        if: steps.filter.outputs.changed == 'true'
+        working-directory: Backend
+        run: |
+          dotnet tool restore
+          dotnet build App/IC.WebAPI/IC.WebAPI.csproj --configuration Release
+
+      - name: Log in to Azure (migration identity)
+        if: steps.filter.outputs.changed == 'true'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_MIGRATION_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Allow runner IP on SQL firewall
+        if: steps.filter.outputs.changed == 'true'
+        run: |
+          RUNNER_IP=$(curl -s https://api.ipify.org)
+          echo "RUNNER_IP=$RUNNER_IP" >> "$GITHUB_ENV"
+          echo "SQL_SERVER_NAME=${SQL_FQDN%%.*}" >> "$GITHUB_ENV"
+          az sql server firewall-rule create \
+            --resource-group "$SQL_RESOURCE_GROUP" \
+            --server "${SQL_FQDN%%.*}" \
+            --name "gha-migrate-${{ github.run_id }}" \
+            --start-ip-address "$RUNNER_IP" --end-ip-address "$RUNNER_IP"
+
+      # Applies only pending migrations (tracked in __EFMigrationsHistory); no-op when up to date.
+      # "Active Directory Default" picks up the Azure CLI login of the migration identity.
+      - name: Apply EF Core migrations to Azure SQL
+        if: steps.filter.outputs.changed == 'true'
+        working-directory: Backend
+        run: |
+          dotnet ef database update \
+            --project App/IC.Infrastructure \
+            --startup-project App/IC.WebAPI \
+            --configuration Release --no-build \
+            --connection "Server=tcp:${{ vars.AZURE_SQL_SERVER }},1433;Initial Catalog=${{ vars.AZURE_SQL_DATABASE }};Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;"
+
+      # Always remove the temporary firewall rule, even if the migration failed
+      - name: Remove runner IP from SQL firewall
+        if: always() && env.RUNNER_IP != ''
+        run: |
+          az sql server firewall-rule delete \
+            --resource-group "$SQL_RESOURCE_GROUP" \
+            --server "$SQL_SERVER_NAME" \
+            --name "gha-migrate-${{ github.run_id }}" || true
+
+  # ============================================================================================
   # Deploy the backend image and runtime SQL managed-identity configuration
   # ============================================================================================
   deploy-backend:
     name: Deploy Backend Container App
-    needs: [backend]
+    needs: [backend, migrate-database]
     runs-on: ubuntu-latest
 
     permissions:

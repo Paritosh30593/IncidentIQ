@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Persistence\Scripts\**\*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\IC.Application\IC.Application.csproj" />
     <ProjectReference Include="..\IC.Domain\IC.Domain.csproj" />
   </ItemGroup>
