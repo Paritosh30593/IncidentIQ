@@ -1,6 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.ApiEndpoints;
+using IC.Application.DTOs.Test;
+using IC.Application.Services.Test;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IC.WebAPI.Endpoints.Tests
@@ -8,13 +10,21 @@ namespace IC.WebAPI.Endpoints.Tests
     [Route("api/tests")]
     public class Get
     : EndpointBaseAsync
-        .WithRequest<string>
-        .WithActionResult<string>
+        .WithoutRequest
+        .WithActionResult<TestDto>
     {
-        [HttpGet("{request}")]
-        public override async Task<ActionResult<string>> HandleAsync(string request, CancellationToken cancellationToken = default)
+        private readonly ITestService _testService;
+
+        public Get(ITestService testService)
         {
-            return Ok(new { Message = "Hi " + request });
+            _testService = testService;
+        }
+
+        [HttpGet]
+        public override async Task<ActionResult<TestDto>> HandleAsync(CancellationToken cancellationToken = default)
+        {
+            TestDto result = await _testService.GetAsync(cancellationToken);
+            return result is not null ? Ok(result) : NotFound();
         }
     }
 }

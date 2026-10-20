@@ -7,10 +7,11 @@
 - The Scripts folder contains raw SQL scripts for views, functions, procedures, and triggers. Ensure:
   - Each script follows the naming convention: `<ObjectName>_<ObjectType>.sql`
   - Include script in migration files when applicable (create or alter) to ensure database consistency
+  - Scripts are embedded resources (`Persistence/Scripts/**/*.sql`) and applied from a migration with `migrationBuilder.ApplySqlScript("<Folder>/<File>.sql")`; every script change needs a **new** migration (never edit applied migrations)
+  - Scripts must be re-runnable (`CREATE OR ALTER`, `MERGE`) and must not contain `GO`
+  - Migrations are applied by the CD pipeline with `dotnet ef database update`; test them against a local DB first. See [docs/database-migrations.md](../../../docs/database-migrations.md)
 
-## Persistence Folder Structure
-
-Folder structure under `IC.Infrastructure` (CQRS pattern):
+## Folder structure under `IC.Infrastructure` (CQRS pattern):
 
 ```plaintext
 IC.Infrastructure
@@ -33,6 +34,7 @@ IC.Infrastructure
 │   │   ├── Views/ # contains SQL view definitions <ViewName>_View.sql
 │   │   ├── Functions/ # contains SQL function definitions <FunctionName>_Function.sql
 │   │   ├── Procedures/ # contains SQL procedure definitions <ProcedureName>_Procedure.sql
+│   │   ├── Publish / # optional, currently unused (migrations are applied by the pipeline via EF)
 │   │   └── Triggers/ # contains SQL trigger definitions <TriggerName>_Trigger.sql
 │   └── Migrations/
 └── Repositories/
@@ -41,6 +43,34 @@ IC.Infrastructure
     └── Command/
         └── ProductCommands.cs
 ```
+
+Explanation:
+
+- `Persistence/` contains all database-related configurations, including the DbContext, entity configurations, functions, views, seed data, raw SQL scripts, and migrations.
+- `Repositories/` contains query and command repositories for accessing and manipulating data.
+
+## Folder structure under `IC.Application` (CQRS pattern):
+
+```plaintext
+IC.Application
+├── DTOs/
+│   └── ProductDto.cs
+├── Services/
+│   ├── Product/
+│   │   ├── IProductService.cs
+│   │   └── ProductService.cs
+└── RepositoryContracts/
+    ├── Query/
+    │   └── IProductQueries.cs
+    └── Command/
+        └── IProductCommands.cs
+```
+
+Explanation:
+
+- `DTOs/` contains data transfer objects for the application layer.
+- `Services/` contains service interfaces and implementations for business logic.
+- `RepositoryContracts/` contains query and command repository interfaces for accessing and manipulating data.
 
 ## Constraint Naming Conventions
 

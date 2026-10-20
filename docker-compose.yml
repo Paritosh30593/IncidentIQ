@@ -26,6 +26,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__IC=Server=mssql;Database=IncidentIQDb;User Id=sa;Password=YourStrong@Passw0rd!;TrustServerCertificate=True;Encrypt=False;
+      - AzureSql__UseManagedIdentity=false
     ports:
       - "8080:8080"
     depends_on:

@@ -15,6 +15,10 @@ RUN npm ci
 # Copy all content except .dockerignore references
 COPY . .
 
+# Vite embeds this public API URL into the static frontend bundle at build time.
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
 # Build the project
 RUN npm run build
 

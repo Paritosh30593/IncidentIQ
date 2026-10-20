@@ -1,4 +1,4 @@
-# ==============================================================================================
+﻿# ==============================================================================================
 # |----- CI workflow for build and test the backend (.NET) & frontend (Node.js) projects. -----|
 # ==============================================================================================
 name: CI Development
@@ -34,6 +34,9 @@ jobs:
       # Step 1: Check out the repository
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          # Full history so the SQL-script/migration check can diff against the base commit
+          fetch-depth: 0
 
       # Step 2: Set up .NET SDK
       - name: Set up .NET
@@ -57,6 +60,33 @@ jobs:
       - name: Run tests
         # the working directory is set by the defaults section
         run: dotnet test  IncidentIQ.slnx --configuration Release --no-build --verbosity normal
+
+      # Step 6: Fail when entity/model changes have no matching migration
+      - name: Check for pending model changes
+        run: |
+          dotnet tool restore
+          dotnet ef migrations has-pending-model-changes \
+            --project App/IC.Infrastructure \
+            --startup-project App/IC.WebAPI \
+            --configuration Release --no-build
+
+      # Step 7: Fail when a Persistence/Scripts/**/*.sql file changed without a new migration
+      - name: Check SQL script changes are covered by a migration
+        working-directory: .
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            echo "No base commit to compare against, skipping."; exit 0
+          fi
+          git cat-file -e "$BASE_SHA" 2>/dev/null || { echo "Base commit not available, skipping."; exit 0; }
+          scripts=$(git diff --name-only "$BASE_SHA" HEAD -- 'Backend/App/IC.Infrastructure/Persistence/Scripts/**/*.sql')
+          new_migrations=$(git diff --name-only --diff-filter=A "$BASE_SHA" HEAD -- 'Backend/App/IC.Infrastructure/Persistence/Migrations/*.cs' | grep -v 'Designer.cs' || true)
+          if [ -n "$scripts" ] && [ -z "$new_migrations" ]; then
+            echo "::error::SQL scripts changed without a new EF Core migration that applies them:"
+            echo "$scripts"
+            exit 1
+          fi
 
   # The frontend job handles building and testing the Node.js frontend.
   frontend:

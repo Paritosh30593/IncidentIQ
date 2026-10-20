@@ -1,5 +1,15 @@
-namespace IC.Infrastructure.Persistence.Functions;
+using Microsoft.EntityFrameworkCore;
 
-public static class FunctionConfiguration
+namespace IC.Infrastructure.Persistence.Functions
 {
+    public static class FunctionConfiguration
+    {
+        public static void Configure(ModelBuilder modelBuilder)
+        {
+            // modelBuilder.Entity<TopTeam>(entity => entity.HasNoKey().ToFunction("fn_GetTopTeams"));
+            // ...
+        }
+    }
 }
+
+
