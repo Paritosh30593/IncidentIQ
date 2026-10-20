@@ -27,8 +27,8 @@ RUN npm run build
 # --- Nginx Image ---
 FROM nginx:1.27-alpine AS production
 
-# The nginx image renders templates/*.template with env vars (BACKEND_URL) at container start
-COPY nginx.conf /etc/nginx/templates/default.conf.template
+# Copy nginx config from project to nginx image
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy dist from node build image to nginx image
 COPY --from=build /app/dist /usr/share/nginx/html
