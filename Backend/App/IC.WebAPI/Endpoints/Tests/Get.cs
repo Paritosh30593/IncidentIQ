@@ -3,10 +3,12 @@ using System.Threading.Tasks;
 using Ardalis.ApiEndpoints;
 using IC.Application.DTOs.Test;
 using IC.Application.Services.Test;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IC.WebAPI.Endpoints.Tests
 {
+    [Authorize]
     [Route("api/tests")]
     public class Get
     : EndpointBaseAsync

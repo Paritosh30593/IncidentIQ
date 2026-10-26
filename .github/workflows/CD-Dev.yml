@@ -3,18 +3,18 @@
 # ==============================================================================================
 name: CD Development
 
-# Additional GitHub Actions variables required by deploy-backend:
-#   AZURE_SQL_SERVER: Azure SQL server hostname, without tcp: or port
-#   AZURE_SQL_DATABASE: Azure SQL database name
-#   API_BASE_URL: Backend API base URL embedded in the frontend bundle at build time.
-#     Leave unset/empty — the backend is internal-only, so the frontend calls same-origin
-#     /api/* paths, which nginx.conf proxies internally to incidentiq-backend. Only set this
-#     if the backend is ever made externally reachable again.
-#   AZURE_SQL_RESOURCE_GROUP (optional): resource group of the SQL server, defaults to ACR_RESOURCE_GROUP
-# Additional variable required by migrate-database:
-#   AZURE_MIGRATION_CLIENT_ID: client ID of the migration identity (pd-az-sql-migrate-westus-02)
-# See docs/database-migrations.md for the one-time identity/SQL setup.
-# AZURE_CLIENT_ID is used for both GitHub OIDC login and the backend SQL identity.
+# GitHub Actions variables (vars.*):
+#   Shared:            AZURE_CLIENT_ID (GitHub OIDC login + backend SQL identity), AZURE_TENANT_ID,
+#                      AZURE_SUBSCRIPTION_ID, ACR_NAME, ACR_RESOURCE_GROUP, ACR_LOGIN_SERVER
+#   migrate-database:  AZURE_MIGRATION_CLIENT_ID (migration identity, pd-az-sql-migrate-westus-02),
+#                      AZURE_SQL_SERVER (hostname, without tcp: or port), AZURE_SQL_DATABASE
+#                      The SQL server is expected in ACR_RESOURCE_GROUP.
+#                      See docs/database-migrations.md for the one-time identity/SQL setup.
+#   deploy-backend:    AZURE_SQL_SERVER, AZURE_SQL_DATABASE, FRONTEND_ORIGIN, ENTRA_API_CLIENT_ID
+#   frontend build:    API_BASE_URL - leave unset/empty. The backend is internal-only, so the frontend
+#                      calls same-origin /api/* paths, which nginx.conf proxies internally to
+#                      incidentiq-backend. Only set this if the backend is ever made externally
+#                      reachable again.
 
 on:
   push:
@@ -25,8 +25,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: cd-dev-${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  BACKEND_IMAGE: ${{ vars.ACR_LOGIN_SERVER }}/incidentiq-backend
+  FRONTEND_IMAGE: ${{ vars.ACR_LOGIN_SERVER }}/incidentiq-frontend
 
 jobs:
   # ============================================================================================
@@ -57,15 +61,15 @@ jobs:
       - name: Log in to Azure Container Registry
         run: |
           az acr login \
-          --name "${{ vars.ACR_NAME }}" \
-          --resource-group "${{ vars.ACR_RESOURCE_GROUP }}" \
-          --subscription "${{ vars.AZURE_SUBSCRIPTION_ID }}"
+            --name "${{ vars.ACR_NAME }}" \
+            --resource-group "${{ vars.ACR_RESOURCE_GROUP }}" \
+            --subscription "${{ vars.AZURE_SUBSCRIPTION_ID }}"
 
       - name: Extract Docker metadata for Backend
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ vars.ACR_LOGIN_SERVER }}/incidentiq-backend
+          images: ${{ env.BACKEND_IMAGE }}
           tags: |
             type=raw,value=latest
             type=sha,prefix=
@@ -110,15 +114,15 @@ jobs:
       - name: Log in to Azure Container Registry
         run: |
           az acr login \
-          --name "${{ vars.ACR_NAME }}" \
-          --resource-group "${{ vars.ACR_RESOURCE_GROUP }}" \
-          --subscription "${{ vars.AZURE_SUBSCRIPTION_ID }}"
+            --name "${{ vars.ACR_NAME }}" \
+            --resource-group "${{ vars.ACR_RESOURCE_GROUP }}" \
+            --subscription "${{ vars.AZURE_SUBSCRIPTION_ID }}"
 
       - name: Extract Docker metadata for Frontend
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ vars.ACR_LOGIN_SERVER }}/incidentiq-frontend
+          images: ${{ env.FRONTEND_IMAGE }}
           tags: |
             type=raw,value=latest
             type=sha,prefix=
@@ -158,20 +162,18 @@ jobs:
 
     env:
       SQL_RESOURCE_GROUP: ${{ vars.ACR_RESOURCE_GROUP }}
-      SQL_FQDN: ${{ vars.AZURE_SQL_SERVER }}
+      SQL_SERVER_FQDN: ${{ vars.AZURE_SQL_SERVER }}
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
 
-      - name: Build migrations
+      - name: Restore tools and build
         working-directory: Backend
         run: |
           dotnet tool restore
@@ -187,11 +189,12 @@ jobs:
       - name: Allow runner IP on SQL firewall
         run: |
           RUNNER_IP=$(curl -s https://api.ipify.org)
+          SQL_SERVER_NAME="${SQL_SERVER_FQDN%%.*}"
           echo "RUNNER_IP=$RUNNER_IP" >> "$GITHUB_ENV"
-          echo "SQL_SERVER_NAME=${SQL_FQDN%%.*}" >> "$GITHUB_ENV"
+          echo "SQL_SERVER_NAME=$SQL_SERVER_NAME" >> "$GITHUB_ENV"
           az sql server firewall-rule create \
             --resource-group "$SQL_RESOURCE_GROUP" \
-            --server "${SQL_FQDN%%.*}" \
+            --server "$SQL_SERVER_NAME" \
             --name "gha-migrate-${{ github.run_id }}" \
             --start-ip-address "$RUNNER_IP" --end-ip-address "$RUNNER_IP"
 
@@ -208,7 +211,7 @@ jobs:
               --project App/IC.Infrastructure \
               --startup-project App/IC.WebAPI \
               --configuration Release --no-build \
-              --connection "Server=tcp:${{ vars.AZURE_SQL_SERVER }},1433;Initial Catalog=${{ vars.AZURE_SQL_DATABASE }};Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;" \
+              --connection "Server=tcp:$SQL_SERVER_FQDN,1433;Initial Catalog=${{ vars.AZURE_SQL_DATABASE }};Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False;Connection Timeout=120;" \
               2>&1 | tee "$RUNNER_TEMP/ef.log"; then
               exit 0
             fi
@@ -238,7 +241,6 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read
       id-token: write
 
     steps:
@@ -254,7 +256,7 @@ jobs:
           az containerapp update \
             --name incidentiq-backend \
             --resource-group "${{ vars.ACR_RESOURCE_GROUP }}" \
-            --image "${{ vars.ACR_LOGIN_SERVER }}/incidentiq-backend:latest" \
+            --image "$BACKEND_IMAGE:latest" \
             --set-env-vars \
               "AZURE_CLIENT_ID=${{ vars.AZURE_CLIENT_ID }}" \
               "AZURE_TENANT_ID=${{ vars.AZURE_TENANT_ID }}" \
@@ -262,7 +264,8 @@ jobs:
               "ConnectionStrings__IC=Server=tcp:${{ vars.AZURE_SQL_SERVER }},1433;Initial Catalog=${{ vars.AZURE_SQL_DATABASE }};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" \
               "CorsOrigins=${{ vars.FRONTEND_ORIGIN }}" \
               "AzureAd__TenantId=${{ vars.AZURE_TENANT_ID }}" \
-              "AzureAd__ClientId=${{ vars.ENTRA_API_CLIENT_ID }}"
+              "AzureAd__ClientId=${{ vars.ENTRA_API_CLIENT_ID }}" \
+              "AzureAd__Domain=${{ vars.AZURE_AD_DOMAIN }}" \
 
   # ============================================================================================
   # Deploy the frontend image to its Container App
@@ -273,7 +276,6 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read
       id-token: write
 
     steps:
@@ -289,7 +291,7 @@ jobs:
           az containerapp update \
             --name incidentiq-frontend \
             --resource-group "${{ vars.ACR_RESOURCE_GROUP }}" \
-            --image "${{ vars.ACR_LOGIN_SERVER }}/incidentiq-frontend:latest"
+            --image "$FRONTEND_IMAGE:latest"
 
   # ============================================================================================
   # Deployment Summary
@@ -302,7 +304,9 @@ jobs:
     steps:
       - name: Deployment Summary
         run: |
-          echo "### Deployment Status 🚀" >> $GITHUB_STEP_SUMMARY
-          echo "**Backend Image:** \`${{ vars.ACR_LOGIN_SERVER }}/incidentiq-backend:latest\` (deployed to Container App)" >> $GITHUB_STEP_SUMMARY
-          echo "**Frontend Image:** \`${{ vars.ACR_LOGIN_SERVER }}/incidentiq-frontend:latest\` (deployed to Container App)" >> $GITHUB_STEP_SUMMARY
-          echo "Backend and frontend Container Apps updated." >> $GITHUB_STEP_SUMMARY
+          {
+            echo "### Deployment Status 🚀"
+            echo "**Backend Image:** \`$BACKEND_IMAGE:latest\` (deployed to Container App)"
+            echo "**Frontend Image:** \`$FRONTEND_IMAGE:latest\` (deployed to Container App)"
+            echo "Backend and frontend Container Apps updated."
+          } >> "$GITHUB_STEP_SUMMARY"

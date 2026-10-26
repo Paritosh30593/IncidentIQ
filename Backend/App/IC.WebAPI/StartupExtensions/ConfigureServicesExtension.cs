@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 namespace IC.WebAPI.StartupExtensions
@@ -14,7 +16,7 @@ namespace IC.WebAPI.StartupExtensions
     {
         public static IServiceCollection ConfigureServices(this WebApplicationBuilder builder)
         {
-            string tenantId = builder.Configuration["AzureAd:TenantId"];
+            string[] allowedTenants = builder.Configuration["AzureAd:TenantId"]?.Split('|');
             string appId = builder.Configuration["AzureAd:ClientId"];
 
             // Configure services here
@@ -40,32 +42,38 @@ namespace IC.WebAPI.StartupExtensions
                 builder.Services.AddOpenApi();
             }
 
-            if (builder.Environment.IsProduction())
-            {
-                builder.Services
-                    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
+            builder.Services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = builder.Configuration["AzureAd:Domain"];
+                    options.TokenValidationParameters = new()
                     {
-                        options.Authority = $"https://login.microsoftonline.com/{tenantId}/v2.0";
-                        options.TokenValidationParameters = new()
+                        ValidateIssuer = true,
+                        IssuerValidator = (issuer, token, _) =>
                         {
-                            ValidateIssuer = true,
-                            ValidIssuers =
-                            [
-                                $"https://sts.windows.net/{tenantId}/",
-                                $"https://login.microsoftonline.com/{tenantId}/v2.0"
-                            ],
-                            ValidateAudience = true,
-                            ValidAudiences =
-                            [
-                                appId,
-                                $"api://{appId}"
-                            ]
-                        };
-                    });
+                            var tid = ((JsonWebToken)token).GetClaim("tid")?.Value;
 
-                builder.Services.AddAuthorizationBuilder();
-            }
+                            if (string.IsNullOrWhiteSpace(tid)
+                            || !allowedTenants.Contains(tid)
+                            || (issuer != $"https://login.microsoftonline.com/{tid}/v2.0"
+                                && issuer != $"https://sts.windows.net/{tid}/"))
+                            {
+                                throw new SecurityTokenInvalidIssuerException("Tenant not allowed");
+                            }
+
+                            return issuer;
+                        },
+                        ValidateAudience = true,
+                        ValidAudiences =
+                        [
+                            appId,
+                            $"api://{appId}"
+                        ]
+                    };
+                });
+
+            builder.Services.AddAuthorizationBuilder();
 
             string[] corsOrigins = builder
                 .Configuration["CorsOrigins"]

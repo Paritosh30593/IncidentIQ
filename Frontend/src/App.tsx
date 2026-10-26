@@ -1,16 +1,19 @@
 import './App.css';
-import { useTestGet } from './features/test/hooks/useTestGet';
+import { BrowserRouter, Route, Routes } from 'react-router';
+import { RequireAuth } from './components/common/RequireAuth';
+import { Home } from './pages/Home';
+import { Login } from './pages/Login';
 
 function App() {
-    const { data, isLoading, error } = useTestGet();
-
     return (
-        <>
-            <h1>Hello, World!</h1>
-            {isLoading && <p>Loading...</p>}
-            {error && <p>Failed to load test data.</p>}
-            {data && <p>{data.sampleText}</p>}
-        </>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route element={<RequireAuth />}>
+                    <Route path="/" element={<Home />} />
+                </Route>
+            </Routes>
+        </BrowserRouter>
     )
 }
 
