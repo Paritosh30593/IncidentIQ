@@ -27,7 +27,7 @@ const appOrigin = normalizeOrigin(import.meta.env.VITE_AZURE_HOST) ?? window.loc
 export const msalConfig: Configuration = {
   auth: {
     clientId: import.meta.env.VITE_AZURE_CLIENT_ID ?? '',
-    authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_TENANT_ID ?? 'organizations'}/v2.0`,
+    authority: 'https://login.microsoftonline.com/common/v2.0',
     redirectUri: appOrigin,
     postLogoutRedirectUri: appOrigin,
   },
@@ -75,7 +75,7 @@ export const msalConfig: Configuration = {
 export const protectedResources = {
   api: {
     endpoint: import.meta.env.VITE_API_BASE_URL,
-    scopes: [`api://${import.meta.env.VITE_AZURE_AUTH_APP_ID}/.default`],
+    scopes: [`api://${import.meta.env.VITE_AZURE_AUTH_APP_ID}/incidentiq_api.all`],
   },
 };
 

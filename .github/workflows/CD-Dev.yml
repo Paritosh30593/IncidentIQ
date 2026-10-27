@@ -11,10 +11,19 @@ name: CD Development
 #                      The SQL server is expected in ACR_RESOURCE_GROUP.
 #                      See docs/database-migrations.md for the one-time identity/SQL setup.
 #   deploy-backend:    AZURE_SQL_SERVER, AZURE_SQL_DATABASE, FRONTEND_ORIGIN, ENTRA_API_CLIENT_ID
+#                      Also reuses AZURE_SQL_SERVER/AZURE_SQL_DATABASE/AZURE_CLIENT_ID to build the
+#                      Serilog MSSqlServer sink connection string (Authentication=Active Directory
+#                      Managed Identity), since that sink opens its own SqlConnection directly from
+#                      config rather than going through the app's connection-string-builder code.
 #   frontend build:    API_BASE_URL - leave unset/empty. The backend is internal-only, so the frontend
 #                      calls same-origin /api/* paths, which nginx.conf proxies internally to
 #                      incidentiq-backend. Only set this if the backend is ever made externally
 #                      reachable again.
+#                      ENTRA_SPA_CLIENT_ID (frontend/SPA app registration, distinct from the shared
+#                      AZURE_CLIENT_ID). Reuses ENTRA_API_CLIENT_ID, FRONTEND_ORIGIN for MSAL
+#                      scope/redirect config. MSAL authority is hardcoded to /common/v2.0 in
+#                      authConfig.ts (login open to any tenant/personal account; API access still
+#                      restricted to our tenant by the single-tenant backend App Registration).
 
 on:
   push:
@@ -140,6 +149,9 @@ jobs:
           # which nginx.conf proxies to the internal-only backend Container App.
           build-args: |
             VITE_API_BASE_URL=${{ vars.API_BASE_URL }}
+            VITE_AZURE_CLIENT_ID=${{ vars.ENTRA_SPA_CLIENT_ID }}
+            VITE_AZURE_AUTH_APP_ID=${{ vars.ENTRA_API_CLIENT_ID }}
+            VITE_AZURE_HOST=${{ vars.FRONTEND_ORIGIN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -252,6 +264,11 @@ jobs:
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy backend image and configure Azure SQL
+        # Serilog__WriteTo__1__Args__connectionString targets WriteTo[1] (MSSqlServer) in
+        # appsettings.json by array index - keep this in sync if that array's order changes.
+        # Unlike ConnectionStrings__IC, the auth mode is embedded directly in the string because
+        # the Serilog sink opens its own SqlConnection from config, bypassing ServiceExtensions.cs's
+        # connection-string-builder code that adds Managed Identity auth for EF/Dapper.
         run: |
           az containerapp update \
             --name incidentiq-backend \
@@ -265,7 +282,7 @@ jobs:
               "CorsOrigins=${{ vars.FRONTEND_ORIGIN }}" \
               "AzureAd__TenantId=${{ vars.AZURE_TENANT_ID }}" \
               "AzureAd__ClientId=${{ vars.ENTRA_API_CLIENT_ID }}" \
-              "AzureAd__Domain=${{ vars.AZURE_AD_DOMAIN }}" \
+              "Serilog__WriteTo__1__Args__connectionString=Server=tcp:${{ vars.AZURE_SQL_SERVER }},1433;Initial Catalog=${{ vars.AZURE_SQL_DATABASE }};Authentication=Active Directory Managed Identity;User Id=${{ vars.AZURE_CLIENT_ID }};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 
   # ============================================================================================
   # Deploy the frontend image to its Container App
