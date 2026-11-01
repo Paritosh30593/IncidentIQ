@@ -4,7 +4,7 @@ import { RequireAuth } from './components/common/RequireAuth';
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 
-function App() {
+export const App = () => {
     return (
         <BrowserRouter>
             <Routes>
@@ -16,5 +16,3 @@ function App() {
         </BrowserRouter>
     )
 }
-
-export default App

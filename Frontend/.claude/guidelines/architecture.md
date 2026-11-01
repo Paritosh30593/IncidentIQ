@@ -11,9 +11,7 @@ The IncidentIQ frontend follows a layered architecture pattern:
 ```plaintext
 src/
 ├── pages/          # Page route-level components. Pages load asynchronously for routing and bundle splitting
-|   └── <PageName>/
-|      ├── index.tsx
-|      └── <PageName>.module.css
+|   └── <PageName>.tsx
 ├── components/      # Shared and UI components
 |   ├── common/      # Shared common components used across pages (Navbar, Footer, Sidebar, etc.) — **only** this category goes here.
 |   |   └── <ComponentName>/

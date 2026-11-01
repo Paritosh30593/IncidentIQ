@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
+import { App } from './App.tsx'
 import { QueryProvider } from './providers/query-provider.tsx'
 import { MsalClientProvider } from './providers/msal-provider.tsx'
 
