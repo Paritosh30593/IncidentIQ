@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using IC.Application.DTOs.Test;
 using IC.Application.RepositoryContracts.Query.Test;
+using IC.Application.ServiceContracts.Test;
 using TestEntity = IC.Domain.Entities.Test;
 
 namespace IC.Application.Services.Test

@@ -1,3 +1,6 @@
+using IC.Application.ServiceContracts.Permission;
+using IC.Application.ServiceContracts.Test;
+using IC.Application.Services.Permission;
 using IC.Application.Services.Test;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -9,6 +12,9 @@ namespace IC.Application
         public static void ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<ITestService, TestService>();
+
+            services.AddMemoryCache();
+            services.AddScoped<IPermissionService, PermissionService>();
         }
     }
 }

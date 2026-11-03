@@ -2,7 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.ApiEndpoints;
 using IC.Application.DTOs.Test;
-using IC.Application.Services.Test;
+using IC.Application.ServiceContracts.Test;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,6 +1,8 @@
 using System;
 using IC.Application;
+using IC.Application.ServiceContracts.Common;
 using IC.Infrastructure;
+using IC.WebAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +36,7 @@ namespace IC.WebAPI.StartupExtensions
             builder.Services.ConfigureApplicationServices(builder.Configuration);
 
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             builder.Services.AddControllers();
 

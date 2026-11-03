@@ -1,6 +1,4 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-
 
 namespace IC.Domain.Common
 {
@@ -8,7 +6,5 @@ namespace IC.Domain.Common
     {
         [Key]
         public T Id { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
     }
 }

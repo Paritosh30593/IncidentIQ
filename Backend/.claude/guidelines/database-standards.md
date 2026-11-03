@@ -11,6 +11,12 @@
   - Scripts must be re-runnable (`CREATE OR ALTER`, `MERGE`) and must not contain `GO`
   - Migrations are applied by the CD pipeline with `dotnet ef database update`; test them against a local DB first. See [docs/database-migrations.md](../../../docs/database-migrations.md)
 
+## Data Access Technology (CQRS)
+
+- **Queries** (`Repositories/Query/*`) always use **Dapper**, via `IDapperUnitOfWork`/`DapperContext` (`Connection`/`Transaction`). Reads are plain parameterized SQL — no LINQ-to-entities.
+- **Commands** (`Repositories/Command/*`) always use **EF Core**, via `AppDbContext`/`IUnitOfWork`. Writes go through tracked entities and change-tracking so EF enforces the configured constraints/behaviors.
+- Never mix the two within the same repository class.
+
 ## Folder structure under `IC.Infrastructure` (CQRS pattern):
 
 ```plaintext
@@ -85,11 +91,20 @@ Commonly used terms and their constraint naming conventions, referenced when def
 | CUK (params1, params2, ...) | Composite Unique Key          | `CUK_TableName_ColumnName1_ColumnName2_...`          |
 | IDX                         | Index Constraint              | `IDX_TableName_ColumnName`                           |
 
+## Audit Columns
+
+- `BaseEntity<T>` (`IC.Domain.Common`) provides only `Id`. Audit timestamp columns are opt-in per entity via `IHasCreatedAt` and/or `IHasUpdatedAt` — implement whichever the table actually needs (both, one, or neither), rather than inheriting them unconditionally.
+
 ## System Versioning
 
-- Entities may opt into system versioning (temporal tables) during CRUD setup via the `Versioning` argument (`Yes`/`No`).
-- Versioned tables carry `ValidFrom` and `ValidTo` columns to track the record's valid date range:
+- Entities may opt into system versioning (SQL Server temporal tables) during CRUD setup via the `Versioning` argument (`Yes`/`No`).
+- Enable via EF Core's native `IsTemporal()` in the entity's `IEntityTypeConfiguration`, naming the period columns `ValidFrom`/`ValidTo`:
   ```csharp
-  public DateTime ValidFrom { get; set; } // Table versioning: record valid from date
-  public DateTime ValidTo { get; set; } // Table versioning: record valid to date
+  builder.ToTable("Product", b => b.IsTemporal(t =>
+  {
+      t.HasPeriodStart("ValidFrom");
+      t.HasPeriodEnd("ValidTo");
+  }));
   ```
+- `ValidFrom`/`ValidTo` must stay EF shadow properties — SQL Server and EF Core manage them automatically on every insert/update/delete. **Do not** also declare them as regular CLR properties on the entity; EF Core rejects that mapping (`Period property 'X' must be a shadow property`).
+- This gives automatic, DB-enforced history of every row version (including deleted rows) with zero application code, queryable via `.TemporalAsOf()` / `.TemporalAll()`. It does **not** track *who* made a change — pair it with explicit actor columns (e.g. `AssignedBy` on `UserRole`) when accountability requires knowing who, not just when.

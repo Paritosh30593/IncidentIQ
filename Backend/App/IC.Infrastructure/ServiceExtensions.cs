@@ -3,8 +3,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using IC.Infrastructure.Persistence.DBContext;
+using IC.Infrastructure.Persistence.Interceptors;
 using Microsoft.Data.SqlClient;
 using IC.Application.RepositoryContracts.Common;
+using IC.Application.RepositoryContracts.Query.Permission;
 using IC.Application.RepositoryContracts.Query.Test;
 using IC.Infrastructure.Repositories.Common;
 using IC.Infrastructure.Repositories.Query;
@@ -22,6 +24,8 @@ namespace IC.Infrastructure
                 throw new InvalidOperationException("ConnectionStrings:IC must be configured.");
             }
 
+            services.AddScoped<AuditSaveChangesInterceptor>();
+
             if (useManagedIdentity)
             {
                 string clientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")
@@ -34,12 +38,15 @@ namespace IC.Infrastructure
                 };
                 connection = csBuilder.ConnectionString;
 
-                services.AddDbContext<AppDbContext>(options =>
-                    options.UseSqlServer(connection, sql => sql.EnableRetryOnFailure()));
+                services.AddDbContext<AppDbContext>((provider, options) =>
+                    options.UseSqlServer(connection, sql => sql.EnableRetryOnFailure())
+                        .AddInterceptors(provider.GetRequiredService<AuditSaveChangesInterceptor>()));
             }
             else
             {
-                services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connection));
+                services.AddDbContext<AppDbContext>((provider, options) =>
+                    options.UseSqlServer(connection)
+                        .AddInterceptors(provider.GetRequiredService<AuditSaveChangesInterceptor>()));
             }
 
             services.AddSingleton(provider => new DapperContext(SqlClientFactory.Instance, connection));
@@ -47,6 +54,7 @@ namespace IC.Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDapperUnitOfWork, DapperUnitOfWork>();
             services.AddScoped<ITestQueries, TestQueries>();
+            services.AddScoped<IPermissionQueries, PermissionQueries>();
         }
     }
 }
