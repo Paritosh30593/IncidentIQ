@@ -7,10 +7,10 @@ using Microsoft.Extensions.Logging;
 
 namespace IC.WebAPI.Middleware
 {
-    public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+    public class ExceptionHandlingMiddleware
     {
-        private readonly RequestDelegate _next = next;
-        private readonly ILogger<ExceptionHandlingMiddleware> _logger = logger;
+        private readonly RequestDelegate _next;
+        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
         private static readonly IReadOnlyDictionary<Type, int> _statusMap = new Dictionary<Type, int>
         {
@@ -19,6 +19,12 @@ namespace IC.WebAPI.Middleware
             [typeof(UnauthorizedAccessException)] = StatusCodes.Status401Unauthorized,
             [typeof(KeyNotFoundException)] = StatusCodes.Status404NotFound,
         };
+
+        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+        {
+            _next = next;
+            _logger = logger;
+        }
 
         public async Task InvokeAsync(HttpContext context)
         {

@@ -1,0 +1,15 @@
+/* Page surface and native UI scheme.
+   color-scheme keeps scrollbars, form controls and autofill in sync with the theme. */
+
+:root,
+.light,
+.light-theme {
+  color-scheme: light;
+  --background: #ffffff;
+}
+
+.dark,
+.dark-theme {
+  color-scheme: dark;
+  --background: #222222;
+}

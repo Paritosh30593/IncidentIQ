@@ -1,1 +1,16 @@
+/* ======================== Global styles entry point ========================
+   palette/         raw color scales (light + dark)
+   tokens/          named roles built on the palette
+   tailwind-theme   exposes the tokens as Tailwind utilities
+   ======================================================================== */
+
 @import "tailwindcss";
+
+@import "./styles/palette/blue.css";
+@import "./styles/palette/gray.css";
+
+@import "./styles/tokens/surface.css";
+@import "./styles/tokens/semantic.css";
+@import "./styles/tokens/feedback.css";
+
+@import "./styles/tailwind-theme.css";

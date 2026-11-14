@@ -1,0 +1,45 @@
+/* Feedback colors for destructive actions, errors, warnings and success.
+     --<name>             solid background (buttons) AND message/toast text
+     --<name>-foreground  text on a solid background
+     --<name>-subtle      light tinted message/toast background
+     --<name>-border      message/toast border
+   Close/cancel buttons need no token: use --secondary or --border. */
+
+/* Light */
+:root,
+.light,
+.light-theme {
+  --destructive: #cd2b31;
+  --destructive-foreground: #ffffff;
+  --destructive-subtle: #feebec;
+  --destructive-border: #f4a9aa;
+
+  --warning: #946800;
+  --warning-foreground: #ffffff;
+  --warning-subtle: #fffbd1;
+  --warning-border: #e8c547;
+
+  --success: #218358;
+  --success-foreground: #ffffff;
+  --success-subtle: #e6f6eb;
+  --success-border: #9bd4b5;
+}
+
+/* Dark */
+.dark,
+.dark-theme {
+  --destructive: #ec5d5e;
+  --destructive-foreground: #ffffff;
+  --destructive-subtle: #3b1219;
+  --destructive-border: #7a2a30;
+
+  --warning: #f5d90a;
+  --warning-foreground: #222222;
+  --warning-subtle: #2d2305;
+  --warning-border: #6b5a10;
+
+  --success: #3dd68c;
+  --success-foreground: #222222;
+  --success-subtle: #132d21;
+  --success-border: #266e4a;
+}

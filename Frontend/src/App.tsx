@@ -1,4 +1,3 @@
-import './App.css';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import { RequireAuth } from './components/common/RequireAuth';
 import { Home } from './pages/Home';

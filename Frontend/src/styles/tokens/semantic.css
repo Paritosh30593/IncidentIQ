@@ -1,0 +1,28 @@
+/* Semantic tokens: what components use. They only reference palette steps, so
+   re-pointing a role (e.g. --primary) is a one-line change.
+   Declared on every theme selector so nested .light/.dark scopes re-resolve. */
+
+:root,
+.light,
+.light-theme,
+.dark,
+.dark-theme {
+  --foreground: var(--gray-12);
+  --card: var(--gray-2);
+  --card-foreground: var(--gray-12);
+  --popover: var(--gray-2);
+  --popover-foreground: var(--gray-12);
+  --primary: var(--blue-9);
+  --primary-foreground: var(--blue-contrast);
+  --secondary: var(--gray-3);
+  --secondary-foreground: var(--gray-12);
+  --muted: var(--gray-3);
+  --muted-foreground: var(--gray-11);
+  --accent: var(--blue-3);
+  --accent-foreground: var(--blue-11);
+  --border: var(--gray-6);
+  --input: var(--gray-7);
+  --ring: var(--blue-8);
+
+  --radius: 0.5rem;
+}

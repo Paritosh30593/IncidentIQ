@@ -23,11 +23,8 @@ namespace IC.WebAPI.StartupExtensions
 
             app.UseSerilogRequestLogging();
 
-            if (app.Environment.IsProduction())
-            {
-                app.UseAuthentication();
-                app.UseAuthorization();
-            }
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.MapControllers();
 

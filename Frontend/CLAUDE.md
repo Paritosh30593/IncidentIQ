@@ -14,6 +14,7 @@ The following guidelines provide standards and conventions for development in th
 
 - [Architecture Guidelines](./.claude/guidelines/architecture.md) — folder structure (`pages`, `components`, `features`, `providers`, `lib`) and where new code goes
 - [Coding Standards](./.claude/guidelines/coding-standards.md) — TypeScript/React conventions and the intended tech stack (axios, TanStack Query, Redux Toolkit, shadcn)
+- [Styling Guidelines](./.claude/guidelines/styling.md) — theme file layout (`palette`, `tokens`), light/dark theming, and which color tokens/Tailwind classes to use
 
 **DO NOT** add test cases for now
 
